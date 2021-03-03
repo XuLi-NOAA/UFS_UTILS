@@ -1079,33 +1079,33 @@
  END SUBROUTINE CLIMO_TREND
 
  SUBROUTINE DTZM_POINT(XT,XZ,DT_COOL,ZC,Z1,Z2,DTZM)
-! ===================================================================== !
-!                                                                       !
-!  description:  get dtzm = mean of dT(z) (z1 - z2) with NSST dT(z)     !
-!                dT(z) = (1-z/xz)*dt_warm - (1-z/zc)*dt_cool            !
-!                                                                       !
-!  usage:                                                               !
-!                                                                       !
-!    call dtzm_point                                                    !
-!                                                                       !
-!       inputs:                                                         !
-!          (xt,xz,dt_cool,zc,z1,z2,                                     !
-!       outputs:                                                        !
-!          dtzm)                                                        !
-!                                                                       !
-!  program history log:                                                 !
-!                                                                       !
-!         2015  -- xu li       createad original code                   !
-!  inputs:                                                              !
-!     xt      - real, heat content in dtl                            1  !
-!     xz      - real, dtl thickness                                  1  !
-!     dt_cool - real, sub-layer cooling amount                       1  !
-!     zc      - sub-layer cooling thickness                          1  !
-!     z1      - lower bound of depth of sea temperature              1  !
-!     z2      - upper bound of depth of sea temperature              1  !
-!  outputs:                                                             !
-!     dtzm   - mean of dT(z)  (z1 to z2)                             1  !
+! ===================================================================== 
+!                                                                       
+!description: get dtzm = mean of dT(z) from z1 to z2, with NSST dT(z)   
+!             dT(z) = (1-z/xz)*dt_warm - (1-z/zc)*dt_cool               
+!             dT(z): the NSST T-Profile(diurnal warming & skin cooling) 
+!             Special case: dtzm = dT(0) = dtw(0) - dtc(0) when z1 = z2 = 0  
+!                                                                       
+!  usage:                                                               
+!                                                                      
+!    call dtzm_point                                                    
+!                                                                       
+!       inputs:                                                         
+!          (xt,xz,dt_cool,zc,z1,z2,                                     
+!       outputs:                                                        
+!          dtzm)                                                        
+!                                                                       
+!  program history log:                                                 
+!         2015  -- xu li       createad original code                   
 !
+!! @param[in]    xt         Heat content in DTL (Diurnal Thermocline Layer) 
+!! @param[in]    xz         Thicknes of DTL
+!! @param[in]    dt_cool    Skin-layer cooling amount
+!! @param[in]    zc         Thicknes of Skin-layer
+!! @param[in]    z1         Lower (zero at the surface, positive downward) bound of depth of sea temperature
+!! @param[in]    z2         Upper (zero at the surface, positive downward) bound of depth of sea temperature
+!! @param[out]   dtzm       The vertical average of the NSST T-Profile, dT(z), from z1 to z2
+
   implicit none
 
   real, intent(in)  :: xt,xz,dt_cool,zc,z1,z2
@@ -1164,6 +1164,7 @@
 !----------------------------------------------------------------------
 ! THIS ROUTINE WAS TAKEN FROM THE FORECAST MODEL -
 ! ./ATMOS_CUBED_SPHERE/TOOLS/FV_TREAT_DA_INC.F90.
+! Generate the  weight of the bilinear interpolation
 !----------------------------------------------------------------------
 
     implicit none
@@ -1246,14 +1247,22 @@
  subroutine tf_thaw_set(tf_ij,mask_ij,itile,jtile,tice,tclm,tf_thaw,nx,ny, &
                         nset_thaw_s,nset_thaw_i,nset_thaw_c)
 !
-! set a vakue to tf background for the thaw (just melted water) situation
+! Set a vakue to foundation temperature background for the thaw (just melted water) situation
+!     1. The nearby searched foundation temperature (tf) background
+!     2. The comibination of tice and tclm if the nearby searched tf background not available
 !
-!Input/output: 
-!       tf          : Foundation temperature background on FV3 native grids
-!       mask_ij     : mask of the tile (FV3 native grids)
-!       itile,jtile : location index of the tile
-!       tice        : water temperature (calulated with a salinity formula)
-!       tclm        : SST climatology valid at the analysis time
+!! @param [in]  tf_ij       Foundation temperature background on FV3 native grids
+!! @param [in]  mask_ij     Surface mask of tf_ij on FV3 native grids
+!! @param [in]  itile       Location index in x-direction
+!! @param [in]  jtile       Location index in y-direction
+!! @param [in]  tice        Water temperature sea ice area (calulated with a salinity formula)
+!! @param [in]  tclm        SST climatology valid at the analysis time
+!! @param [in]  nx          x Dimension of tf_ij
+!! @param [in]  ny          y Dimension of tf_ij
+!! @param [out] tf_thaw     Foundation temperature assigned with search nearby tf or the combination of tice or tclm
+!! @param [out] nset_thaw_s 
+!! @param [out] nset_thaw_i 
+!! @param [out] nset_thaw_c 
 
  real,    dimension(nx*ny), intent(in)    :: tf_ij
  integer, dimension(nx*ny), intent(in)    :: mask_ij
