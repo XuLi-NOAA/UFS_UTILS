@@ -1162,10 +1162,24 @@
       im, jm, lon, lat, id1, id2, jdc, s2c, agrid )
 
 !----------------------------------------------------------------------
+! Generate the weights and index of the grids used in the the bilinear interpolation
+!
 ! THIS ROUTINE WAS TAKEN FROM THE FORECAST MODEL -
 ! ./ATMOS_CUBED_SPHERE/TOOLS/FV_TREAT_DA_INC.F90.
-! Generate the  weight of the bilinear interpolation
 !----------------------------------------------------------------------
+!! @param [in]   is     start index in x-direction of the source array
+!! @param [in]   ie     end   index in x-direction of the source array
+!! @param [in]   js     start index in y-direction of the source array
+!! @param [in]   je     end   index in y-direction of the source array
+!! @param [in]   im     x-dimension of the source array
+!! @param [in]   jm     y-dimension of the source array
+!! @param [in]   lon    1-d array of longitudes (in radain)
+!! @param [in]   lat    1-d array of latitudes (in radain)
+!! @oaram [in]   agrid  2-d array for lon [agrid(:,:,1)] & lat [agrid(:,:,2)] (in radain)
+!! @param [out]  s2c    bi-linear interpolation weights of the 4 nearby grids of the source array
+!! @param [out]  id1    index 1 in x-direction of the nearby grids of the source array 
+!! @param [out]  id2    index 2 in x-direction of the nearby grids of the source array
+!! @param [out]  jdc    index in y-direction of the nearby grid of the source array
 
     implicit none
     integer, intent(in):: is, ie, js, je
@@ -1247,7 +1261,7 @@
  subroutine tf_thaw_set(tf_ij,mask_ij,itile,jtile,tice,tclm,tf_thaw,nx,ny, &
                         nset_thaw_s,nset_thaw_i,nset_thaw_c)
 !
-! Set a vakue to foundation temperature background for the thaw (just melted water) situation
+! Set a value to foundation temperature background for the thaw (just melted water) situation
 !     1. The nearby searched foundation temperature (tf) background
 !     2. The comibination of tice and tclm if the nearby searched tf background not available
 !
@@ -1260,9 +1274,9 @@
 !! @param [in]  nx          x Dimension of tf_ij
 !! @param [in]  ny          y Dimension of tf_ij
 !! @param [out] tf_thaw     Foundation temperature assigned with search nearby tf or the combination of tice or tclm
-!! @param [out] nset_thaw_s 
-!! @param [out] nset_thaw_i 
-!! @param [out] nset_thaw_c 
+!! @param [out] nset_thaw_s Number of filling with the searched tf
+!! @param [out] nset_thaw_i Number of filling with the calculated tgice (for ice point)
+!! @param [out] nset_thaw_c Number of filling with the weighted average of tgice and tclm
 
  real,    dimension(nx*ny), intent(in)    :: tf_ij
  integer, dimension(nx*ny), intent(in)    :: mask_ij
